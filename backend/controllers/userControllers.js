@@ -3,15 +3,29 @@ const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { ApiResponse } = require("../utils/ApiResponse");
+require("dotenv").config()
 
-const secretKey = 'your_secret_key';
+const secretKey='your-secret-key'
 
+ const generateAccessAndRefreshTokens = async (userId) => {
+  try {
+    const user = await User.findById(userId);
+    const accessToken = jwt.sign({ userId: user._id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '24h' });
+    const refreshToken = jwt.sign({ userId: user._id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' });
 
+    user.refreshToken = refreshToken;
+    await user.save({ validateBeforeSave: false });
+
+    return { accessToken, refreshToken };
+  } catch (error) {
+    throw new Error(500, "Something went wrong while generating refresh and access tokens");
+  }
+};
 
 
 const getUser = asyncHandler(async (req, res) => {
   try {
-    const users = await User.find().select("-password -refreshToken");
+    const users = await User.find()
     res.json({ users });
   } catch (error) {
     res.status(500).json({ message: "Something went wrong" });
@@ -19,86 +33,219 @@ const getUser = asyncHandler(async (req, res) => {
 });
 
 const createUser = asyncHandler(async (req, res) => {
-  const { username, email, password, image } = req.body;
+  const { username, email, password } = req.body;
 
-  if (!username || !email || !password || !image) {
-    return res.status(400).json({ message: "Please fill all the fields" });
+  if (!username || !email || !password) {
+    return res.status(400).json({ message: "Please fill required fields" });
   }
 
   try {
-    const existingUser = await User.findOne({ $or: [{ username }, { email }] });
-    if (existingUser) {
-      return res.status(400).json({ message: "User already registered" });
+    const existedUser = await User.findOne({
+      $or: [{ username }, { email }],
+    });
+
+    if (existedUser) {
+      return res.json({ message: "User or email already registered" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({
-      username: username.toLowerCase(),
-      password: hashedPassword,
       email,
-      image,
+      password: hashedPassword,
+      username: username.toLowerCase(),
     });
 
-    const accessToken = jwt.sign({ userId: user._id }, secretKey, { expiresIn: "24h" });
+    const accessToken = jwt.sign({ userId: user._id }, secretKey, { expiresIn: '24h' });
+    const refreshToken = jwt.sign({ userId: user._id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' });
+  
+    const options={
+      httpOnly:true,
+      secure:true,
+    }
+     
+    //later i see two of these 
+  //  res.cookie('accessToken',accessToken,options)
+  //  res.cookie('refreshToken',refreshToken)
 
-    const createdUser = await User.findById(user._id).select("-password -refreshToken");
+    user.refreshToken = refreshToken;
+    await user.save();
+
+    const createdUser = await User.findById(user._id).select('-password -refreshToken');
 
     if (!createdUser) {
-      return res.status(500).json({ message: "Something went wrong while registering" });
+      return res.status(404).json({ message: "Something went wrong while registering" });
     }
 
     return res.status(201).json(
-      new ApiResponse(200, { user: createdUser, accessToken }, "User registered successfully")
+      new ApiResponse(200, { createdUser, accessToken, refreshToken }, "User registered successfully")
     );
   } catch (error) {
-    res.status(500).json({ message: "Something went wrong" });
+   
+    return res.status(500).json({ message: "Error registering user" });
   }
 });
 
-//function for creating token for user
-const createToken = (userId) => {
-  // Set the token payload
-  const payload = {
-    userId: userId,
-  };
-
-  // Generate the token with a secret key and expiration time
-  const token = jwt.sign(payload, "Q$r2K6W8n!jCW%Zk", { expiresIn: "1h" });
-
-  return token;
-};
-
 const logInUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
+  if (!email || !password) {
+    res.status(400).json({ message: "Please fill both fields" });
+  }
 
   try {
-    // Your logic to find the user by email or any other identifier
     const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "Email not found" });
+    }
+
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    if (!passwordMatch) {
+      return res.status(401).json({ message: 'Invalid password' });
+    }
+
+    const accessToken = jwt.sign({ userId: user._id }, secretKey, { expiresIn: '24h' });
+    const refreshToken = user.generateRefreshToken(); // Assuming this method generates a refresh token
+
+    await user.save(); // Save the updated user document with the refresh token
+
+    const loggedInUser = await User.findById(user._id).select("-password -refreshToken"); // Fix here: user._id instead of user_.id
+    const options = {
+      httpOnly: true,
+      secure: true,
+    };
+
+    return res
+      .status(200)
+      .cookie("accessToken", accessToken, options)
+      .cookie("refreshToken", refreshToken, options)
+      .json(
+        new ApiResponse(200, {
+          user: loggedInUser,
+          accessToken,
+          refreshToken,
+        }, "User logged in successfully")
+      );
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Something went wrong while login" });
+  }
+});
+
+
+const logOutUser=asyncHandler(async(req,res)=>{
+  try {
+    await User.findByIdAndUpdate(
+      req.user._id,
+      {$unset:{refreshToken:" "}},
+      {new:true}
+    );
+
+   const options={
+    httpOnly:true,
+    secure:true,
+    expires: new Date(0), // Expire the cookies immediately
+    sameSite: 'strict' // Set your preferred sameSite option
+   }
+
+   res.clearCookie("accessToken",options);
+   res.clearCookie("refreshToken",options);
+   return res.status(200).json(new ApiResponse(200, {}, "User logged out"));
+
+  } catch (error) {
+    return res.status(500).json(new ApiResponse(500, {}, "Error logging out"));
+  }
+})
+const refreshAccessToken=asyncHandler(async(req,res)=>{
+const incomingRefreshToken=req.cookies.refreshToken || req.body.refreshToken;
+
+if (!incomingRefreshToken) {
+  return res.status(401).json({ message: "Unauthorized request" });
+}
+
+try {
+  const decodeToken=jwt.verify(incomingRefreshToken,process.env.REFRESH_TOKEN_SECRET);
+
+const user=await User.findById(decodeToken?.userId)
+
+if (!user) {
+  return res.status(404).json({ message: "Unauthorized request" });
+}
+
+if (incomingRefreshToken !== user?.refreshToken) {
+  return res.status(404).json({ message: "Expired token" });
+}
+
+const options={
+  httpOnly:true,
+  secure:true,
+}
+const { accessToken, refreshToken: newRefreshToken } = await generateAccessAndRefreshTokens(user._id);
+
+return res
+  .status(200)
+  .cookie("accessToken", accessToken, options)
+  .cookie("refreshToken", newRefreshToken, options)
+  .json(
+    new ApiResponse(
+      200,
+      { accessToken, refreshToken: newRefreshToken },
+      "Access token refreshed"
+    )
+  );
+
+} catch (error) {
+  console.log(error)
+ res.status(500).json({message:"Something went wrong"})
+}
+
+})
+
+const changePassword = asyncHandler(async (req, res) => {
+  const { oldPassword, newPassword } = req.body;
+  const userId = req?.user?.id; // Assuming userId is obtained from authentication
+  
+  try {
+    // Finding user by ID
+    const user = await User.findById(userId);
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Compare passwords
-    const passwordMatch = await bcrypt.compare(password, user.password);
+    // Check if the provided old password matches the user's current password
+    const passwordMatch = await bcrypt.compare(oldPassword, user.password);
 
     if (!passwordMatch) {
-      return res.status(401).json({ message: "Invalid password" });
+      return res.status(401).json({ message: "Old password is incorrect" });
     }
 
-    // Generate access token using the createToken function
-    const accessToken = createToken(user._id);
+    // Check if the new password matches the old password
+    const newPasswordMatch = await bcrypt.compare(newPassword, user.password);
 
-    // Return the access token in the response
+    if (newPasswordMatch) {
+      return res.status(400).json({ message: "New password should be different from the old password" });
+    }
+
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update the user's password
+    user.password = hashedPassword;
+    await user.save();
+
     return res.status(200).json({
-      message: "Login successful",
-      user: { _id: user._id, email: user.email },
-      accessToken: accessToken,
+      message: "Password updated successfully",
     });
   } catch (error) {
-    return res.status(500).json({ message: "Error logging in" });
+    console.error(error);
+    return res.status(500).json({ message: "Error updating password" });
   }
 });
 
-module.exports = { getUser, createUser,logInUser };
+
+
+
+
+
+
+module.exports = { getUser,createUser,logInUser,logOutUser,refreshAccessToken,changePassword};

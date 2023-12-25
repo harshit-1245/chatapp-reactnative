@@ -7,18 +7,21 @@ const userSchema=new mongoose.Schema({
         type:String,
         required:true,
         unique:true,
+        match: /^[a-zA-Z0-9_]+$/, // showld have number and alaphabetic characters
     },
     email:{
         type:String,
         required:true,
+        match:/^[^\s@]+@[^\s@]+\.[^\s@]+$/, //simple email format
     },
     password:{
         type:String,
         required:true,
+        // match: /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/, // Regular expression for a password with minimum 8 characters, at least one letter, one number, and one special character
     },
     image:{
      type:String,
-     required:true,
+    
     },
     refreshToken:{
         type:String,
@@ -44,7 +47,7 @@ const userSchema=new mongoose.Schema({
     ],
 })
 
-const User=mongoose.model("User",userSchema);
+
 
 
 
@@ -59,5 +62,7 @@ userSchema.methods.generateRefreshToken = function () {
   this.refreshToken = refreshToken; // Update the refreshToken field in the schema
   return refreshToken; // Return the generated refresh token
 };
+
+const User=mongoose.model("User",userSchema);
 
 module.exports=User;

@@ -20,9 +20,13 @@ const handleRegister = () => {
     image: image
   };
 
-  axios.post("http://192.168.29.164:7000/user/register", user)
+  axios.post("http://192.168.29.163:7000/user/register", user)
     .then((response) => {
       Alert.alert("Registration Successfully");
+
+      const token = response.data.data?.accessToken;
+      
+      AsyncStorage.setItem("authToken",token)
       setUserName("");
       setEmail("");
       setPassword("");

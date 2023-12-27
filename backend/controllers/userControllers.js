@@ -164,11 +164,11 @@ if (!incomingRefreshToken) {
 
 try {
   const decodeToken=jwt.verify(incomingRefreshToken,process.env.REFRESH_TOKEN_SECRET);
-
+console.log(decodeToken)
 const user=await User.findById(decodeToken?.userId)
 
 if (!user) {
-  return res.status(404).json({ message: "Unauthorized request" });
+  return res.status(404).json({ message: "User not found" });
 }
 
 if (incomingRefreshToken !== user?.refreshToken) {

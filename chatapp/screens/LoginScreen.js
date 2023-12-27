@@ -1,13 +1,20 @@
 import { View, Text, KeyboardAvoidingView, TextInput, Pressable, ScrollView, Alert } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import {useNavigation} from "@react-navigation/native"
 import axios from "axios"
+import AsyncStorage from "@react-native-async-storage/async-storage"
 
 const LoginScreen = () => {
 const navigation=useNavigation();
   const [email,setEmail]=useState("");
   const [password,setPassword]=useState("");
+
+
+
+
+
+
    
     const handleLogin=()=>{
       const user={
@@ -15,12 +22,21 @@ const navigation=useNavigation();
         password: password
       }
            
-    axios.post("http://192.168.29.164:7000/user/login",user)
+    axios.post("http://192.168.29.163:7000/user/login",user)
     .then((response) => {
       Alert.alert("Login Successful");
      
+
+      const token = response.data.data?.accessToken;
+      
+     AsyncStorage.setItem("authToken",token)
+
       setEmail("");
       setPassword("");
+    
+      if(token){
+        navigation.navigate("Main")
+      }
       
     })
     .catch((error) => {
@@ -58,6 +74,20 @@ const navigation=useNavigation();
           onChangeText={(text)=>setPassword(text)}
           placeholderTextColor={"black"} placeholder='Enter your password' />
         </View>
+        </View>
+        <View style={{
+            marginTop: 12,
+            marginLeft:150,
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}>
+        
+           <Text 
+           onPress={()=>navigation.navigate("forgot")}
+           style={{ color: "#007FFF", fontWeight: "500" }}>
+            Forgot Password?
+          </Text>
         </View>
 
         <View>

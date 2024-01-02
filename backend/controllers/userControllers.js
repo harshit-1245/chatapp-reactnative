@@ -165,7 +165,11 @@ if (!incomingRefreshToken) {
 try {
   const decodeToken=jwt.verify(incomingRefreshToken,process.env.REFRESH_TOKEN_SECRET);
 console.log(decodeToken)
-const user=await User.findById(decodeToken?.userId)
+    /**
+     * Gets the user by ID from the decoded JWT token.
+     * This allows us to find the user associated with the refresh token.
+     */
+    const user = await User.findById(decodeToken?.userId)
 
 if (!user) {
   return res.status(404).json({ message: "User not found" });

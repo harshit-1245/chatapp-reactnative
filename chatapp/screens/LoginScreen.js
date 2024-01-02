@@ -10,8 +10,16 @@ const navigation=useNavigation();
   const [email,setEmail]=useState("");
   const [password,setPassword]=useState("");
 
-
-
+//you dont need to login again and again 
+  useEffect(()=>{
+    const checkLoginStatus=async()=>{
+      const loginToken=await AsyncStorage.getItem("authToken")
+      if(loginToken){
+        navigation.replace("Main")
+      }
+    }
+    checkLoginStatus()
+    },[])
 
 
 
@@ -34,9 +42,7 @@ const navigation=useNavigation();
       setEmail("");
       setPassword("");
     
-      if(token){
-        navigation.navigate("Main")
-      }
+    
       
     })
     .catch((error) => {
@@ -44,6 +50,11 @@ const navigation=useNavigation();
       Alert.alert("Login Failed");
     });
     }
+
+
+
+
+
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "white"}}>

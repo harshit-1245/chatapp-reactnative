@@ -24,9 +24,9 @@ const handleRegister = () => {
     .then((response) => {
       Alert.alert("Registration Successfully");
 
-      const token = response.data.data?.accessToken;
       
-      AsyncStorage.setItem("authToken",token)
+      
+      
       setUserName("");
       setEmail("");
       setPassword("");

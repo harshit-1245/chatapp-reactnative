@@ -32,6 +32,21 @@ const getUser = asyncHandler(async (req, res) => {
   }
 });
 
+//endpoint to access all the users except the who's is currently logged in!
+const getUserId =asyncHandler(async(req,res)=>{
+try {
+    const loggedInUserId=req.params.userId; //users/123
+  const user =await  User.find({_id: {$ne:loggedInUserId}}) 
+  res.status(200).json(user)
+}catch (error) {
+  res.status(500).json({message:"Error retrieving users",error})
+}
+  
+      
+})
+
+
+
 const createUser = asyncHandler(async (req, res) => {
   const { username, email, password } = req.body;
 
@@ -252,4 +267,4 @@ const changePassword = asyncHandler(async (req, res) => {
 
 
 
-module.exports = { getUser,createUser,logInUser,logOutUser,refreshAccessToken,changePassword};
+module.exports = { getUser,createUser,logInUser,logOutUser,refreshAccessToken,changePassword,getUserId};

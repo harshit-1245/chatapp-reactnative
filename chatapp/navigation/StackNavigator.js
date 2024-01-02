@@ -14,7 +14,7 @@ const StackNavigator = () => {
     <Stack.Navigator>
       <Stack.Screen name="Home" component={LoginScreen} options={{headerShown:false}}/>
       <Stack.Screen name="Register" component={RegisterScreen} options={{headerShown:false}}/>
-      <Stack.Screen name="Main" component={HomeScreen} options={{headerShown:false}}/>
+      <Stack.Screen name="Main" component={HomeScreen} />
       <Stack.Screen name="forgot" component={ForgotPassword} options={{headerShown:false}}/>
       
     </Stack.Navigator>

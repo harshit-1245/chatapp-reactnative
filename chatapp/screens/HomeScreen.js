@@ -1,5 +1,5 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native'
-import React, { useContext, useEffect, useLayoutEffect } from 'react'
+import React, { useContext, useEffect, useLayoutEffect, useState } from 'react'
 import {useNavigation} from "@react-navigation/native"
 import { AntDesign } from '@expo/vector-icons';
 import { Ionicons } from '@expo/vector-icons';
@@ -7,12 +7,14 @@ import {UserType} from "../UserContext"
 import axios from "axios"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import base64 from "base-64"
+import User from '../components/User';
 
 
 
 const HomeScreen = () => {
  const navigation=useNavigation()
  const {userId,setUserId}=useContext(UserType)
+ const [users,SetUsers]=useState([])
 
  const decodeJWTToken = async () => {
   try {
@@ -38,11 +40,21 @@ const HomeScreen = () => {
   }
 };
 
+
+
  useEffect(()=>{
+  const fetchUser=async()=>{
+   axios.get(`http://192.168.29.163:7000/user/${userId}`)
+   .then((res)=>{
+    SetUsers(res.data)
+   }).catch((err)=>{
+    console.error(err)
+   })
+  }
+  fetchUser()
   decodeJWTToken();
  },[])
-console.log(userId)
- 
+console.log(users)
  useLayoutEffect(()=>{
   navigation.setOptions({
     headerTitle:"",
@@ -61,10 +73,20 @@ console.log(userId)
 
 
   return (
-    <View>
-      <Text>HomeScreen</Text>
-    
+    <>
+   <View>
+      <View>
+        {Array.isArray(users) && users.length > 0 ? (
+          users.map((item, index) => (
+            <User key={index} userData={item} />
+          ))
+        ) : (
+          <Text>Loading...</Text>
+        )}
+      </View>
     </View>
+  
+  </>
   )
 }
 

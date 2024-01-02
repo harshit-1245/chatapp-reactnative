@@ -37,7 +37,12 @@ const getUserId =asyncHandler(async(req,res)=>{
 try {
     const loggedInUserId=req.params.userId; //users/123
   const user =await  User.find({_id: {$ne:loggedInUserId}}) 
-  res.status(200).json(user)
+
+  const options = {
+    httpOnly: true,
+    secure: true,
+  };
+  res.status(200).json(new ApiResponse(200, {user}, "user info",options))
 }catch (error) {
   res.status(500).json({message:"Error retrieving users",error})
 }

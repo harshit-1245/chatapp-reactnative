@@ -1,6 +1,7 @@
 const express=require("express");
 const { getUser,createUser,logInUser,logOutUser,refreshAccessToken, changePassword,getUserId} = require( "../controllers/userControllers" );
 const verifyJwt = require( "../middlewares/authentication" );
+
 const router=express.Router()
 
 router.route("/").get(getUser)

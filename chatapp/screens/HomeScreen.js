@@ -1,14 +1,47 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native'
-import React, { useContext, useLayoutEffect } from 'react'
+import React, { useContext, useEffect, useLayoutEffect } from 'react'
 import {useNavigation} from "@react-navigation/native"
 import { AntDesign } from '@expo/vector-icons';
 import { Ionicons } from '@expo/vector-icons';
 import {UserType} from "../UserContext"
+import axios from "axios"
+import AsyncStorage from "@react-native-async-storage/async-storage"
+import base64 from "base-64"
+
 
 
 const HomeScreen = () => {
  const navigation=useNavigation()
  const {userId,setUserId}=useContext(UserType)
+
+ const decodeJWTToken = async () => {
+  try {
+    const token = await AsyncStorage.getItem('authToken');
+
+    if (token) {
+      const [headerEncoded, payloadEncoded, signatureEncoded] = token.split('.');
+      const decodedToken = {
+        header: JSON.parse(base64.decode(headerEncoded)),
+        payload: JSON.parse(base64.decode(payloadEncoded)),
+        signature: signatureEncoded, // This remains base64 encoded
+      };
+
+      // Access the decoded token's payload.userId
+      const userId = decodedToken.payload.userId;
+     setUserId(userId)
+    } else {
+      console.error('Token not found in AsyncStorage');
+    }
+  } catch (error) {
+    console.error('Error decoding token:', error);
+    // Handle error as needed
+  }
+};
+
+ useEffect(()=>{
+  decodeJWTToken();
+ },[])
+console.log(userId)
  
  useLayoutEffect(()=>{
   navigation.setOptions({
@@ -24,7 +57,8 @@ const HomeScreen = () => {
     )
   })
  },[])
-  
+
+
 
   return (
     <View>

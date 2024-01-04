@@ -1,8 +1,16 @@
-import { View, Text, KeyboardAvoidingView, TextInput, Pressable, ScrollView, Alert } from 'react-native'
+import { View, Text, KeyboardAvoidingView, TextInput, Pressable, ScrollView, Alert, Button, Image } from 'react-native'
 import React, { useState } from 'react'
 import axios from "axios"
 import { SafeAreaView } from 'react-native-safe-area-context'
 import {useNavigation} from "@react-navigation/native"
+import * as ImagePicker from "expo-image-picker"
+import { EvilIcons } from '@expo/vector-icons';
+
+
+
+
+
+
 
 const RegisterScreen = () => {
   const navigation=useNavigation()
@@ -10,6 +18,7 @@ const [username,setUserName]=useState("")
 const [email,setEmail]=useState("")
 const [password,setPassword]=useState("")
 const [image,setImage]=useState("")
+
 
 
 const handleRegister = () => {
@@ -37,6 +46,53 @@ const handleRegister = () => {
       Alert.alert("Registration Failed");
     });
 };
+//function for accepting image
+const uploadImage = async (mode) => {
+  try {
+    let result={};
+    if (mode === "gallery") {
+      // Handle gallery mode
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
+      result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes:ImagePicker.MediaTypeOptions.Images,
+        allowsEditing:true,
+        aspect:[1,1],
+        quality:1,
+      })
+      if(!result.cancelled){
+        await saveImage(result.assets[0].uri);
+      }
+
+    } else {
+      // Handle camera mode
+      await ImagePicker.requestCameraPermissionsAsync();
+      result = await ImagePicker.launchCameraAsync({
+        cameraType: ImagePicker.CameraType.front,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 1,
+      });
+      if (!result.cancelled) {
+        // Save image function
+        await saveImage(result.assets[0].uri);
+      }
+    }
+  } catch (error) {
+    console.error("Error uploading image:", error);
+    // Handle error
+  }
+};
+
+
+
+
+const saveImage=async(image)=>{
+  try {
+    setImage(image)
+  } catch (error) {
+    throw new Error("Something went wrong")
+  }
+}
 
 
 
@@ -82,14 +138,22 @@ const handleRegister = () => {
         </View>
         </View>
         <View style={{marginTop:50}}>
-        <View>
-          <Text style={{fontSize:email ?18 :18,fontWeight:"600",color:"gray"}}>Image</Text>
-          <TextInput
-          value={image}
-          onChangeText={(text)=>setImage(text)}
-          placeholderTextColor={"black"} placeholder='Upload your image' />
-        </View>
-        </View>
+  <View>
+    <Text style={{fontSize: email ? 18 : 18, fontWeight: "600", color: "gray"}}>Image</Text>
+    <View>
+      {image && (
+        <Image
+          resizeMode="cover"
+          resizeMethod="scale"
+        
+          source={{ uri: image }}
+        />
+      )}
+      <Button title='Select Image' onPress={()=>uploadImage()} />
+      <EvilIcons onPress={()=>uploadImage("gallery")} name="image" size={24} color="black" />
+    </View>
+  </View>
+</View>
 
         <View>
          <View>
@@ -124,3 +188,5 @@ const handleRegister = () => {
 }
 
 export default RegisterScreen
+
+

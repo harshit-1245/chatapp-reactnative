@@ -47,7 +47,7 @@ try {
 
 
 const createUser = asyncHandler(async (req, res) => {
-  const { username, email, password } = req.body;
+  const { username, email, password,image } = req.body;
 
   if (!username || !email || !password) {
     return res.status(400).json({ message: "Please fill required fields" });
@@ -68,6 +68,7 @@ const createUser = asyncHandler(async (req, res) => {
       email,
       password: hashedPassword,
       username: username.toLowerCase(),
+      image,
     });
 
     const accessToken = jwt.sign({ userId: user._id }, secretKey, { expiresIn: '24h' });
@@ -260,10 +261,26 @@ const changePassword = asyncHandler(async (req, res) => {
   }
 });
 
+const sendingRequest=asyncHandler(async(req,res)=>{
+const {currentUserId,selectedUserId}=req.body;
+try {
+  //update friendrequest array
+ await User.findByIdAndUpdate(selectedUserId,{
+  $push: {friendRequest:currentUserId},
+ })
+
+  //and sender sendingRequest array
+  await User.findByIdAndUpdate(currentUserId,{
+    $push:{sendFriendRequest:selectedUserId}
+  })
+  res.status(201).json({message:"request send successfully"})
+} catch (error) {
+  res.status(500).json({message:"check while sending friend request"})
+}
+})
 
 
 
 
 
-
-module.exports = { getUser,createUser,logInUser,logOutUser,refreshAccessToken,changePassword,getUserId};
+module.exports = { getUser,createUser,logInUser,logOutUser,refreshAccessToken,changePassword,getUserId,sendingRequest};

@@ -279,8 +279,55 @@ try {
 }
 })
 
+const friendScreen=asyncHandler(async(req,res)=>{
+    try{
+      const {userId}=req.params;
+      //fetch the user from document of UserModel
+      const user=await User.findById(userId).populate("friendRequest","username email image").lean();
+      const friendRequests = user.friendRequest;
+      res.status(200).json(friendRequests)
+      
+    } catch (error) {
+      res.status(500).json({message:"something went wrong while geeting friend request"})
+    } 
+})
+
+const acceptRequest = asyncHandler(async (req, res) => {
+
+  try {
+    const { senderId, recepient} = req.body;
+
+    // Retrieve the documents of sender and the recipient
+    const sender = await User.findById(senderId);
+    const recipient = await User.findById(recepient);
+ 
+    // Update friend arrays for both sender and recipient
+    sender.friend.push(recipient);
+    recipient.friend.push(senderId);
+
+    // Remove friend request of sender from recipient's friendRequest array after accepting
+    recipient.friendRequest = recipient.friendRequest.filter(
+      (request) => request.toString() !== senderId.toString()
+    );
+
+    // Remove sent friend request from sender's sendFriendRequest array after recipient accepts the request
+    sender.sendFriendRequest = sender.sendFriendRequest.filter(
+      (request) => request.toString() !== recepient.toString()
+    );
+
+    await sender.save();
+    await recipient.save();
+
+    res.status(200).json({ message: "Friend request accepted successfully" });
+  } catch (error) {
+    
+  console.error('Error accepting friend request:', error);
+    res.status(500).json({ message: "Something went wrong while accepting request" });
+  }
+});
 
 
 
 
-module.exports = { getUser,createUser,logInUser,logOutUser,refreshAccessToken,changePassword,getUserId,sendingRequest};
+
+module.exports = { getUser,createUser,logInUser,logOutUser,refreshAccessToken,changePassword,getUserId,sendingRequest,friendScreen,acceptRequest};

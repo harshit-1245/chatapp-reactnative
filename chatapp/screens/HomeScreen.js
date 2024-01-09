@@ -46,7 +46,7 @@ const HomeScreen = () => {
   const fetchUser=async()=>{
    axios.get(`http://192.168.29.163:7000/user/${userId}`)
    .then((res)=>{
-    console.log(res.data)
+    
     SetUsers(res.data)
    }).catch((err)=>{
     console.error(err)
@@ -67,7 +67,7 @@ const HomeScreen = () => {
     headerRight:()=>(
      <View style={{flexDirection:"row",alignItems:"center",gap:8}}>
 <AntDesign name="message1" size={24} color="black" />
-<Ionicons name="people-outline" size={24} color="black" />
+<Ionicons onPress={()=>navigation.navigate("Friends")} name="people-outline" size={24} color="black" />
      </View>
     )
   })

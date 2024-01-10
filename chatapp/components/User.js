@@ -44,8 +44,8 @@ const User = ({ item }) => {
       <Pressable onPress={()=>sendingRequest(userId,item._id)} style={styles.addButton}>
         <Text style={styles.addButtonText}>Add Friend</Text>
       </Pressable>
-
-      {/* <Text onPress={()=>navigation.navigate("Register")}>Logout</Text> */}
+        
+      <Text onPress={()=>navigation.navigate("Home")}>Logout</Text>
     </Pressable>
   );
 };

@@ -1,5 +1,5 @@
 const express=require("express");
-const { getUser,createUser,logInUser,logOutUser,refreshAccessToken, changePassword,getUserId,sendingRequest,friendScreen,acceptRequest} = require( "../controllers/userControllers" );
+const { getUser,createUser,logInUser,logOutUser,refreshAccessToken, changePassword,getUserId,sendingRequest,friendScreen,acceptRequest,acceptedRequest, UserDetail} = require( "../controllers/userControllers" );
 const verifyJwt = require( "../middlewares/authentication" );
 
 const router=express.Router()
@@ -17,6 +17,8 @@ router.route("/friendRequest/:userId").get(friendScreen)
 
 //endpoint for accept a friend request of a perticular person
 router.route("/friendRequest/accept").post(acceptRequest);
-
-
+//endpoint for getting accepted request
+router.route("/acceptedRequest/:userId").get(acceptedRequest)
+//end point for getting userdetail for chat room
+router.route("/:userId").get(UserDetail)
 module.exports=router;

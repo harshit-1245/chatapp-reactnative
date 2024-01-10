@@ -23,7 +23,7 @@ const FriendRequests = ({ item, friendRequest, setFriendRequest }) => {
    
       if (response.status === 200) {
         Alert.alert("Successfully accepted")
-        // setFriendRequest(friendRequest.filter((request) => request.id !== friendRequestId));
+        setFriendRequest(friendRequest.filter((request) => request.id !== friendRequestId));
         navigation.navigate('Chat'); // Navigate to the "Chat" screen after accepting the request
       }
       

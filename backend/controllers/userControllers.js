@@ -326,8 +326,31 @@ const acceptRequest = asyncHandler(async (req, res) => {
   }
 });
 
+const acceptedRequest = asyncHandler(async (req, res) => {
+  try {
+    const {userId} = req.params;
+    const user = await User.findById(userId).populate("friend","username email image")
+
+    const acceptedFriends = await user.friend;
+    res.json(acceptedFriends)
+  } catch (error) {
+    res.status(500).json({ message: "Something went wrong while getting accepted request" });
+  }
+});
+
+const UserDetail=asyncHandler(async(req,res)=>{
+  try {
+    const {userId}=req.params;
+    //fetch the userData from the userId
+    const recepientId=await User.findById(userId);
+    res.status(200).json(recepientId)
+  } catch (error) {
+    res.status(500).json({ message: "Something went wrong while getting user Detail" });
+  }
+})
 
 
 
 
-module.exports = { getUser,createUser,logInUser,logOutUser,refreshAccessToken,changePassword,getUserId,sendingRequest,friendScreen,acceptRequest};
+
+module.exports = { getUser,createUser,logInUser,logOutUser,refreshAccessToken,changePassword,getUserId,sendingRequest,friendScreen,acceptRequest,acceptedRequest,UserDetail};

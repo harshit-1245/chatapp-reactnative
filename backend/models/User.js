@@ -35,7 +35,7 @@ const userSchema=new mongoose.Schema({
     friend:[
         {
             type:mongoose.Schema.Types.ObjectId,
-            Ref:"User"
+            ref:"User"
         }
     ],
     sendFriendRequest:[

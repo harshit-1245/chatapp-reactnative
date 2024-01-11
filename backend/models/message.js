@@ -1,31 +1,35 @@
-const mongoose=require('mongoose')
+const mongoose = require('mongoose');
 
-const messageSchema=new mongoose.Schema({
-    senderId:{
-    type:mongoose.Schema.Types.ObjectId,
-    ref:"User",
+const messageSchema = new mongoose.Schema({
+  senderId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
+  recepientId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
+  messageType: {
+    type: String,
+    enum: ["text", "image"],
+    required: true,
+  },
+  messageText: {
+    type: String,
+    required: function () {
+      return this.messageType === "text";
     },
-    recepientId:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:"User",
+  },
+  imageUrl: {
+    type: String,
+    required: function () {
+      return this.messageType === "image";
     },
-    messageType:{
-       type:String,
-       enum:["text","image"], //nothing accept ohet that these fields
-    },
-    message:{
-    type:String,
+  },
+}, { timestamps: true });
 
-    },
-    imageUrl:{
-    type:String,
-    },
-    videoUrl:{
-        type:String,
-    }
-},{timestamps:true})
+const Message = mongoose.model("Message", messageSchema);
 
-
-const Message=mongoose.model("Message",messageSchema)
-
-module.exports=Message;
+module.exports = Message;

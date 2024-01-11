@@ -11,25 +11,28 @@ const getMessages=asyncHandler(async(req,res)=>{
     }
 })
 
-const sendMessage=asyncHandler(async(req,res)=>{
-try {
-    const {senderId,recepientId,messageType,messageText}=req.body;
-   const newMessage=new Message({
-    senderId,
-    recepientId,
-    messageType,
-    messageText,
-    timestamp:new Date(),
-    imageUrl:messageType === "image",
-   })
-   res.status(200).json({message:"message sent successfully"})
-
-
-} catch (error) {
-    res.status(500).json({message:"Error while sending message"})
-}
-})
-
+const sendMessage = asyncHandler(async (req, res) => {
+    try {
+      const { senderId, recepientId, messageType, messageText, imageUrl } = req.body;
+  
+      const newMessage = new Message({
+        senderId,
+        recepientId,
+        messageType,
+        messageText,
+        imageUrl,
+      });
+  
+      await newMessage.save();
+  
+      res.status(200).json({ message: "Message sent successfully" });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Error while sending message" });
+    }
+  });
+  
+  
 const getChat=asyncHandler(async(req,res)=>{
   try {
     const {senderId,recepientId}=req.params;

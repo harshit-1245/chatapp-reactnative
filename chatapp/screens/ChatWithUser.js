@@ -129,8 +129,13 @@ const ChatWithUser = () => {
     }
     getChat()
   },[])
+ 
   
-  console.log(chatMessage)
+  const formatTime=(time)=>{
+    const option = {hour: "numeric",minute:"numeric"}
+    return new Date(time).toLocaleString("en-US",option)
+  }
+
 
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: "#F0F0F0" }}>
@@ -165,6 +170,7 @@ const ChatWithUser = () => {
         ]}
       >
         <Text style={{ fontSize: 20 }}>{item?.messageText}</Text>
+        {/* <Text>{formatView(item.time)}</Text> */}
       </Pressable>
     );
   }

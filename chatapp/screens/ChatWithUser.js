@@ -19,7 +19,7 @@ const ChatWithUser = () => {
   const [username,setUsername]=useState()
   const [recepientData,setRecepientData]=useState([])
   const [selectedImage,setSelectedImage]=useState("")
-  const [messages,setMessages]=useState("")
+  const [chatMessage,setChatMessage]=useState({})
 
   const handleShowEmoji=()=>{
     setShowEmoji(!showEmoji)
@@ -119,19 +119,59 @@ const ChatWithUser = () => {
 
   useEffect(()=>{
     const getChat=async()=>{
-      const response=await axios.get(`http://192.168.29.163:7000/message/${userId}/${recepientId}`)
-      console.log(response.data)
-      setMessages(response.data);
+      try {
+        const response=await axios.get(`http://192.168.29.163:7000/message/${userId}/${recepientId}`)
+       
+        setChatMessage(response.data);
+      } catch (error) {
+        console.error(error)
+      }
     }
     getChat()
   },[])
   
-  console.log(messages)
+  console.log(chatMessage)
 
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: "#F0F0F0" }}>
       <ScrollView>
         {/* All the messages come here */}
+        {Object.keys(chatMessage).map((key, index) => {
+  const item = chatMessage[key];
+
+  if (item.messageType === "text") {
+    return (
+      <Pressable
+        key={index}
+        style={[
+          // If user is sending
+          item?.senderId?._id === userId
+            ? {
+                alignSelf: "flex-end",
+                backgroundColor: "#DCF8C6",
+                padding: 8,
+                maxWidth: "60%",
+                borderRadius: 7,
+                margin: 10,
+              }
+            : {
+                alignSelf: "flex-start",
+                backgroundColor: "white",
+                padding: 8,
+                margin: 10,
+                borderRadius: 7,
+                maxWidth: "60%",
+              },
+        ]}
+      >
+        <Text style={{ fontSize: 20 }}>{item?.messageText}</Text>
+      </Pressable>
+    );
+  }
+
+  return null; // or render something else for other message types
+})}
+        
       </ScrollView>
 
       <View style={{flexDirection: "row",

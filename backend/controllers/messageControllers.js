@@ -37,7 +37,7 @@ const getChat=asyncHandler(async(req,res)=>{
   try {
     const {senderId,recepientId}=req.params;
     
-    const messages = await Message.findOne({
+    const messages = await Message.find({
         $or:[
             {senderId:senderId,recepientId:recepientId},
             {senderId:recepientId,recepientId:senderId},

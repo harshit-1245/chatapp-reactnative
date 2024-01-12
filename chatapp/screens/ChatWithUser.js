@@ -121,13 +121,13 @@ const handleSend = async () => {
     const requestData = {
       senderId: userId,
       recepientId: recepientId,
-      messageType: messageType, // Send the selected messageType
+      messageType: messageType,
     };
 
     if (messageType === "text") {
       requestData.messageText = message;
     } else if (messageType === "image") {
-      requestData.imageUrl = selectedImage;
+      requestData[messageType] = selectedImage;
     }
 
     const response = await axios.post(
@@ -146,6 +146,7 @@ const handleSend = async () => {
     console.error("Status code:", error.response.status);
   }
 };
+
 
 const saveImage = async (image, messageType) => {
   try {
@@ -229,14 +230,61 @@ const uploadImage = async (mode) => {
               },
         ]}
       >
-        <Text style={{ fontSize: 20,textAlign:"left" }}>{item?.messageText}</Text>
-        <Text style={{textAlign:"right",fontSize:9,color:"gray",marginTop:5}}>{formatCurrentTime(currentTimeFormatted)}</Text>
+        <Text style={{ fontSize: 20, textAlign: "left" }}>
+          {item?.messageText}
+        </Text>
+        <Text
+          style={{
+            textAlign: "right",
+            fontSize: 9,
+            color: "gray",
+            marginTop: 5,
+          }}
+        >
+          {formatCurrentTime(currentTimeFormatted)}
+        </Text>
       </Pressable>
+    );
+  }
+
+  if (item.messageType === "image") {
+    const baseUrl = item.imageUrl;
+
+    return (
+      <View
+        key={index}
+        style={{
+          alignSelf:
+            item?.senderId?._id === userId ? "flex-end" : "flex-start",
+          maxWidth: "60%",
+          margin: 10,
+        }}
+      >
+        <Image
+          style={{
+            width: 200, // Adjust the width as needed
+            height: 200, // Adjust the height as needed
+            borderRadius: 7,
+          }}
+          source={{ uri: baseUrl }}
+        />
+        <Text
+          style={{
+            textAlign: "right",
+            fontSize: 9,
+            color: "gray",
+            marginTop: 5,
+          }}
+        >
+          {formatCurrentTime(currentTimeFormatted)}
+        </Text>
+      </View>
     );
   }
 
   return null; // or render something else for other message types
 })}
+
         
       </ScrollView>
 

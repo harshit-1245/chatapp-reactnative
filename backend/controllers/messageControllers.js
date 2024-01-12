@@ -2,6 +2,7 @@ const asyncHandler=require("express-async-handler")
 const Message = require("../models/message")
 const { ApiResponse } = require( "../utils/ApiResponse" )
 
+
 const getMessages=asyncHandler(async(req,res)=>{
     try {
         const message=await Message.find()
@@ -11,15 +12,16 @@ const getMessages=asyncHandler(async(req,res)=>{
     }
 })
 
+
 const sendMessage = asyncHandler(async (req, res) => {
   try {
     const { senderId, recepientId, messageType, messageText } = req.body;
-    
+    console.log(req.body)
     let imageUrl = null;
 
-    if (messageType === "image" && req.file) {
-      // Use req.file.path as the imageUrl for images
-      imageUrl = req.file.path;
+    if (messageType === "image" && req.body) {
+      // Use req.file.filename to get the image filename
+      imageUrl = req.body.image;
     }
 
     const newMessage = new Message({
@@ -38,6 +40,8 @@ const sendMessage = asyncHandler(async (req, res) => {
     res.status(500).json({ message: "Error while sending message" });
   }
 });
+
+
 
 
 

@@ -7,6 +7,7 @@ import {useNavigation,useRoute} from "@react-navigation/native"
 import { Feather } from '@expo/vector-icons';
 import axios from "axios"
 import { UserType } from '../UserContext';
+import * as ImagePicker from "expo-image-picker"
 
 const ChatWithUser = () => {
   const {userId}=useContext(UserType)
@@ -15,6 +16,7 @@ const ChatWithUser = () => {
   const {recepientId} = route.params
   const [showEmoji,setShowEmoji]=useState(false)
   const [message,setMessage]=useState("")
+  const [messageType,setMessageType]=useState("text")
   const [apiImage,setApiImage]=useState()
   const [username,setUsername]=useState()
   const [recepientData,setRecepientData]=useState([])
@@ -25,33 +27,6 @@ const ChatWithUser = () => {
     setShowEmoji(!showEmoji)
   }
 
-  const handleSend = async (messageType, imageUrl) => {
-    try {
-      const requestData = {
-        senderId: userId,
-        recepientId: recepientId,
-        messageType: messageType,
-      };
-  
-      if (messageType === "text") {
-        requestData.messageText = message;
-      } else if (messageType === "image") {
-        requestData.imageUrl = imageUrl;
-      }
-  
-      const response = await axios.post("http://192.168.29.163:7000/message/send", requestData);
-  
-      if (response.status === 200) {
-        setMessage("");
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-  
-  
-  
-  
   //getting user image
   useEffect(()=>{
      const getRecepientId=async()=>{
@@ -116,25 +91,110 @@ const ChatWithUser = () => {
   
  
   //get chat of two user   
+  const getChat=async()=>{
+    try {
+      const response=await axios.get(`http://192.168.29.163:7000/message/${userId}/${recepientId}`)
+     
+      setChatMessage(response.data);
+    } catch (error) {
+      console.error(error)
+    }
+  }
 
   useEffect(()=>{
-    const getChat=async()=>{
-      try {
-        const response=await axios.get(`http://192.168.29.163:7000/message/${userId}/${recepientId}`)
-       
-        setChatMessage(response.data);
-      } catch (error) {
-        console.error(error)
-      }
-    }
+    
     getChat()
   },[])
  
   
-  const formatTime=(time)=>{
-    const option = {hour: "numeric",minute:"numeric"}
-    return new Date(time).toLocaleString("en-US",option)
+  const formatCurrentTime = () => {
+    const options = { hour: "numeric", minute: "numeric" };
+    return new Date().toLocaleString("en-US", options);
+};
+
+// Example usage:
+const currentTimeFormatted = formatCurrentTime();
+
+//----------------------------------handling button send
+const handleSend = async () => {
+  try {
+    const requestData = {
+      senderId: userId,
+      recepientId: recepientId,
+      messageType: messageType, // Send the selected messageType
+    };
+
+    if (messageType === "text") {
+      requestData.messageText = message;
+    } else if (messageType === "image") {
+      requestData.imageUrl = selectedImage;
+    }
+
+    const response = await axios.post(
+      "http://192.168.29.163:7000/message/send",
+      requestData
+    );
+
+    if (response.status === 200) {
+      setMessage("");
+      setSelectedImage("");
+      setMessageType("text"); // Reset messageType after sending
+      getChat();
+    }
+  } catch (error) {
+    console.error("Error details:", error.response.data);
+    console.error("Status code:", error.response.status);
   }
+};
+
+const saveImage = async (image, messageType) => {
+  try {
+    setSelectedImage(image);
+    setMessageType(messageType); // Set the messageType based on the selected mode
+    getChat(); // Assuming you want to refresh the chat after sending an image
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+// Function for uploading image
+const uploadImage = async (mode) => {
+  try {
+    let result = {};
+    if (mode === "gallery") {
+      // Handling gallery mode
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
+      result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 1,
+      });
+      if (!result.cancelled) {
+        // Call saveImage with the selected image and set the messageType to 'image'
+        await saveImage(result.assets[0].uri, "image");
+      }
+    } else {
+      await ImagePicker.requestCameraPermissionsAsync();
+      result = await ImagePicker.launchCameraAsync({
+        cameraType: ImagePicker.CameraType.front,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 1,
+      });
+      if (!result.cancelled) {
+        // Call saveImage with the selected image and set the messageType to 'image'
+        await saveImage(result.assets[0].uri, "image");
+      }
+    }
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+
+
+
 
 
   return (
@@ -169,8 +229,8 @@ const ChatWithUser = () => {
               },
         ]}
       >
-        <Text style={{ fontSize: 20 }}>{item?.messageText}</Text>
-        {/* <Text>{formatView(item.time)}</Text> */}
+        <Text style={{ fontSize: 20,textAlign:"left" }}>{item?.messageText}</Text>
+        <Text style={{textAlign:"right",fontSize:9,color:"gray",marginTop:5}}>{formatCurrentTime(currentTimeFormatted)}</Text>
       </Pressable>
     );
   }
@@ -190,7 +250,7 @@ const ChatWithUser = () => {
         <Entypo onPress={handleShowEmoji} name="emoji-happy" size={24} color="black" style={styles.icon} />
         <View style={styles.inputWrapper}>
           <TextInput style={styles.input} placeholder='Type text here' value={message} onChangeText={(text)=>setMessage(text)} />
-          <Entypo name="camera" size={24} color="gray" style={styles.icon} />
+          <Entypo onPress={()=>uploadImage("gallery")} name="camera" size={24} color="gray" style={styles.icon} />
           <FontAwesome name="microphone" size={24} color="gray" style={styles.icon} />
         </View>
         <Pressable onPress={()=>handleSend("text")} style={styles.sendButton}>

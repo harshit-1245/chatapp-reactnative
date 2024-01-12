@@ -18,15 +18,12 @@ const messageSchema = new mongoose.Schema({
   },
   messageText: {
     type: String,
-    required: function () {
-      return this.messageType === "text";
-    },
+    default: null, // or an appropriate default value
   },
   imageUrl: {
     type: String,
-    required: function () {
-      return this.messageType === "image";
-    },
+    default: "",
+    required: false, // Make imageUrl optional
   },
 }, { timestamps: true });
 

@@ -15,6 +15,7 @@ const ChatScreen = () => {
           method:"GET"
         })
          const data=await response.json();
+         
          if(response.ok){
           setRequestAccept(data)
          }

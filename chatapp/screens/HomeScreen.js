@@ -79,8 +79,8 @@ const HomeScreen = () => {
     <>
  <View>
   <View style={{padding:10}}>
-    {Object.keys(users).map((key) => (
-      <User key={key} item={users[key]} />
+    {Object.keys(users).map((key,index) => (
+      <User key={index} item={users[key]} />
     ))}
   </View>
 </View>

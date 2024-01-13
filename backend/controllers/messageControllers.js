@@ -16,7 +16,7 @@ const getMessages=asyncHandler(async(req,res)=>{
 const sendMessage = asyncHandler(async (req, res) => {
   try {
     const { senderId, recepientId, messageType, messageText } = req.body;
-    console.log(req.body)
+    
     let imageUrl = null;
 
     if (messageType === "image" && req.body) {
@@ -40,14 +40,7 @@ const sendMessage = asyncHandler(async (req, res) => {
     res.status(500).json({ message: "Error while sending message" });
   }
 });
-
-
-
-
-
-
-  
-  
+ 
 const getChat=asyncHandler(async(req,res)=>{
   try {
     const {senderId,recepientId}=req.params;
@@ -68,6 +61,19 @@ const getChat=asyncHandler(async(req,res)=>{
   }
 })
 
+const deleteMessage=asyncHandler(async(req,res)=>{
+  try {
+    const {message}= req.body;
+    console.log(req.body)
+    if(!Array.isArray(message) || message.length === 0){
+      res.status(400).json({message:"not anything in body"})
+    }
 
-module.exports={getMessages,sendMessage,getChat}
+    await Message.deleteMany({_id: {$in: message}});
+    res.status(200).json({message:"Message deleted successfully"})
+  } catch (error) {
+    res.status(500).json({message:"Something went wrong while deleting"})
+  }
+})
+module.exports={getMessages,sendMessage,getChat,deleteMessage}
 

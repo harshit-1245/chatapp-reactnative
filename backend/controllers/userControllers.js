@@ -338,16 +338,22 @@ const acceptedRequest = asyncHandler(async (req, res) => {
   }
 });
 
-const UserDetail=asyncHandler(async(req,res)=>{
+const UserDetail = asyncHandler(async (req, res) => {
   try {
-    const {userId}=req.params;
-    //fetch the userData from the userId
-    const recepientId=await User.findById(userId);
-    res.status(200).json(recepientId)
+    const { userId } = req.params;
+    // Fetch the userData from the userId
+    const recepientId = await User.findById(userId);
+    
+    if (!recepientId) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json( recepientId );
   } catch (error) {
     res.status(500).json({ message: "Something went wrong while getting user Detail" });
   }
-})
+});
+
 
 
 

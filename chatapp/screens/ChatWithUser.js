@@ -2,7 +2,9 @@ import { Image, KeyboardAvoidingView, Pressable, ScrollView, StyleSheet, Text, T
 import React, { useContext, useEffect, useLayoutEffect, useState } from 'react';
 import { Entypo } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import EmojiSelector from "react-native-emoji-selector"
+import { MaterialIcons } from '@expo/vector-icons';
 import {useNavigation,useRoute} from "@react-navigation/native"
 import { Feather } from '@expo/vector-icons';
 import axios from "axios"
@@ -17,11 +19,11 @@ const ChatWithUser = () => {
   const [showEmoji,setShowEmoji]=useState(false)
   const [message,setMessage]=useState("")
   const [messageType,setMessageType]=useState("text")
-  const [apiImage,setApiImage]=useState()
-  const [username,setUsername]=useState()
   const [recepientData,setRecepientData]=useState([])
   const [selectedImage,setSelectedImage]=useState("")
   const [chatMessage,setChatMessage]=useState({})
+  const [selectedMessages,setSelectedMessages]=useState([])
+  
 
   const handleShowEmoji=()=>{
     setShowEmoji(!showEmoji)
@@ -31,25 +33,9 @@ const ChatWithUser = () => {
   useEffect(()=>{
      const getRecepientId=async()=>{
       try {
-        const response=await axios.get(`http://192.168.29.163:7000/user/${recepientId}`)
+        const response=await axios.get(`http://192.168.29.163:7000/user/getRecipient/${recepientId}`)
           
-        //extracting username
-
-        const nameArray=response.data;
-        const username=nameArray.map(item=>item.username)
-         setUsername(username)
-         //----------------------------------------------------------------------------------------------------
-
-        const dataArray = response.data;
-        // Extracting image URLs into a new array
-        const imageUrls = dataArray.map(item => item.image);
-        
-        // Logging the array of image URLs
-        setApiImage(imageUrls)
-
-       
-
-       
+      
         setRecepientData(response.data)
       } catch (error) {
         console.log(error)
@@ -66,9 +52,14 @@ const ChatWithUser = () => {
       headerLeft: () => {
         return (
           <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
-            <Feather onPress={()=>navigation.goBack()} name="arrow-left" size={24} color="black" />
-            <View style={{flexDirection:"row",alignItems:"center"}}>
-              {apiImage && apiImage.length > 0 && (
+            <Feather onPress={() => navigation.goBack()} name="arrow-left" size={24} color="black" />
+  
+            {selectedMessages.length > 0 ? (
+              <View>
+                <Text style={{ fontSize: 16, fontWeight: "500" }}>{selectedMessages.length}</Text>
+              </View>
+            ) : (
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
                 <>
                   <Image
                     style={{
@@ -77,17 +68,44 @@ const ChatWithUser = () => {
                       borderRadius: 15,
                       resizeMode: "cover",
                     }}
-                    source={{ uri: apiImage[0] }}
+                    source={{ uri: recepientData?.image }}
                   />
-                  <Text style={{marginLeft:5,fontWeight:"bold"}}>{username[0]}</Text>
+                  <Text style={{ marginLeft: 5, fontWeight: "bold" }}>{recepientData?.username}</Text>
                 </>
-              )}
-            </View>
+              </View>
+            )}
           </View>
         );
       },
+      headerRight: () =>
+        selectedMessages.length > 0 ? (
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+            <Ionicons name="arrow-redo" size={24} color="black" />
+            <Ionicons name="arrow-undo" size={24} color="black" />
+            <FontAwesome name="star" size={24} color="black" />
+            <MaterialIcons onPress={()=>handleDelete(selectedMessages)} name="delete" size={24} color="black" />
+          </View>
+        ) : null,
     });
-  }, [recepientData]);
+  }, [recepientData,selectedMessages]);
+  //deleteting chat when we selcet
+  const handleDelete=async(messageId)=>{
+    try {
+      const response = await fetch("http://192.168.29.163:7000/message/deletemessage",{
+        method:"POST",
+        headers:{
+          "Content-Type":"application/json",
+        },
+        body: JSON.stringify({message: messageId}),//sending into body
+      });
+      if(response.ok){
+        setSelectedMessages((prevSelectedMessage)=>prevSelectedMessage.filter((id)=>!messageId.includes(id)))
+      };
+      getChat()
+    } catch (error) {
+      console.error(error)
+    }
+  }
   
  
   //get chat of two user   
@@ -193,7 +211,19 @@ const uploadImage = async (mode) => {
   }
 };
 
+//logic for deleting long press
+const handleSelectedMessage=(message)=>{
+  //if its true then it moves furhter
+  const isSelected = selectedMessages.includes(message._id);
+//if already selected
+  if(isSelected){
+    setSelectedMessages((prevMessage)=>prevMessage.filter((id)=> id !== message._id))
+  }else{
+    setSelectedMessages((prevMessage)=>[...prevMessage,message._id,]);
+  }
+}
 
+console.log(selectedMessages)
 
 
 
@@ -206,8 +236,10 @@ const uploadImage = async (mode) => {
   const item = chatMessage[key];
 
   if (item.messageType === "text") {
+    const isSelected=selectedMessages.includes(item._id)
     return (
       <Pressable
+      onLongPress={()=>handleSelectedMessage(item)}
         key={index}
         style={[
           // If user is sending
@@ -227,12 +259,16 @@ const uploadImage = async (mode) => {
                 margin: 10,
                 borderRadius: 7,
                 maxWidth: "60%",
+                alignItems:isSelected ?"flex-start":"",
               },
+              isSelected && {width:"100%",backgroundColor:"#F0FFFF"}
         ]}
       >
-        <Text style={{ fontSize: 20, textAlign: "left" }}>
+        {/* actal text */}
+        <Text style={{ fontSize: 20, textAlign: isSelected ? "right":"left" }}>
           {item?.messageText}
         </Text>
+        {/* time it has some issue i will handle it */}
         <Text
           style={{
             textAlign: "right",
@@ -246,41 +282,47 @@ const uploadImage = async (mode) => {
       </Pressable>
     );
   }
-
+// problem with image UI isSelected
   if (item.messageType === "image") {
+    const isSelected = selectedMessages.includes(item._id);
     const baseUrl = item.imageUrl;
-
+  
     return (
-      <View
-        key={index}
-        style={{
-          alignSelf:
-            item?.senderId?._id === userId ? "flex-end" : "flex-start",
-          maxWidth: "60%",
-          margin: 10,
-        }}
-      >
-        <Image
-          style={{
-            width: 200, // Adjust the width as needed
-            height: 200, // Adjust the height as needed
-            borderRadius: 7,
-          }}
-          source={{ uri: baseUrl }}
-        />
-        <Text
-          style={{
-            textAlign: "right",
-            fontSize: 9,
-            color: "gray",
-            marginTop: 5,
-          }}
-        >
-          {formatCurrentTime(currentTimeFormatted)}
-        </Text>
-      </View>
+      <Pressable
+  onLongPress={() => handleSelectedMessage(item)}
+  key={index}
+  style={{
+    alignSelf: item?.senderId?._id === userId ? "flex-end" : "flex-start",
+    maxWidth: "60%",
+    margin: 10,
+    backgroundColor: isSelected ? "gray" : "",
+  }}
+>
+  <Image
+    style={{
+      width: 200, // Adjust the width as needed
+      height: 200, // Adjust the height as needed
+      borderRadius: 7,
+      borderWidth: isSelected ? 1 : 1, // Add a border when the image is selected
+      borderColor: "blue", // Adjust the border color as needed
+    }}
+    source={{ uri: baseUrl }}
+  />
+  <Text
+    style={{
+      textAlign: "right",
+      fontSize: 9,
+      color: "gray",
+      marginTop: 5,
+    }}
+  >
+    {formatCurrentTime(currentTimeFormatted)}
+  </Text>
+</Pressable>
+
     );
   }
+  
 
   return null; // or render something else for other message types
 })}

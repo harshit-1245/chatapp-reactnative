@@ -20,5 +20,5 @@ router.route("/friendRequest/accept").post(acceptRequest);
 //endpoint for getting accepted request
 router.route("/acceptedRequest/:userId").get(acceptedRequest)
 //end point for getting userdetail for chat room
-router.route("/:userId").get(UserDetail)
+router.route("/getRecipient/:userId").get(UserDetail)
 module.exports=router;

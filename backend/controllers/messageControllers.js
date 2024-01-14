@@ -64,7 +64,7 @@ const getChat=asyncHandler(async(req,res)=>{
 const deleteMessage=asyncHandler(async(req,res)=>{
   try {
     const {message}= req.body;
-    console.log(req.body)
+   
     if(!Array.isArray(message) || message.length === 0){
       res.status(400).json({message:"not anything in body"})
     }

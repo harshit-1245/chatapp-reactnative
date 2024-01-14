@@ -1,5 +1,5 @@
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { UserType } from '../UserContext';
 import axios from "axios"
@@ -8,6 +8,9 @@ const User = ({ item }) => {
   const navigation = useNavigation();
   const {userId,setUserId}=useContext(UserType)
   const [request,setRequest]=useState(false);
+  const [friendRequests,setFriendRequests]=useState([]);
+  const [userFriends,setUserFriends]=useState([])
+
 
   const sendingRequest = async (currentUserId, selectedUserId) => {
     try {
@@ -28,6 +31,54 @@ const User = ({ item }) => {
       throw new Error(error);
     }
   };
+//  friend if sent 
+useEffect(() => {
+  const fetchFriendRequests = async () => {
+    try {
+     
+      const response = await fetch(
+        `http://192.168.29.163:7000/user/friendRequest/sent/${userId}`
+      );
+
+      console.log("Response status:", response.status);
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        console.log("Friend requests received:", data);
+        setFriendRequests(data);
+      } else {
+        console.log("Error in response:", data);
+        console.log("Error status:", response.status);
+      }
+    } catch (error) {
+      console.error("Error during fetchFriendRequests:", error);
+    }
+  };
+
+  fetchFriendRequests();
+}, [userId]);
+
+
+  
+ //getting friend request
+ useEffect(() => {
+  const fetchFriendList = async () => {
+    try {
+      const response = await axios.get(`http://192.168.29.163:7000/user/friends/${userId}`);
+      setUserFriends(response.data)
+      
+    } catch (error) {
+      console.error(error)
+    }
+  };
+
+  fetchFriendList();
+}, []);
+
+
+
+
 
   return (
     <Pressable style={styles.container}>

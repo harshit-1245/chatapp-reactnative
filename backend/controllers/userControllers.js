@@ -354,9 +354,34 @@ const UserDetail = asyncHandler(async (req, res) => {
   }
 });
 
+const sent=asyncHandler(async(req,res)=>{
+  try {
+    const {userId}=req.params;
+    
+    const user = await User.findById(userId).populate("sendFriendRequest","username email image").lean()
+    const sendFriendRequests = user.sendFriendRequest
+    res.status(200).json(sendFriendRequests)
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({message:"someting wrong while getting sent"})
+  }
+})
+
+const friendList=asyncHandler(async(req,res)=>{
+  try {
+    const {userId} = req.params;
+    User.findById(userId).populate("friend").then((user)=>{
+      if(!user){
+        return res.status(400).json({message:"User not found"})
+      }
+
+      const friends=user.friend.map((friend)=>friend._id);
+      res.status(200).json(friends)
+    })
+  } catch (error) {
+    res.status(500).json({message:"Something went wrong while getting"})
+  }
+})
 
 
-
-
-
-module.exports = { getUser,createUser,logInUser,logOutUser,refreshAccessToken,changePassword,getUserId,sendingRequest,friendScreen,acceptRequest,acceptedRequest,UserDetail};
+module.exports = { getUser,createUser,logInUser,logOutUser,refreshAccessToken,changePassword,getUserId,sendingRequest,friendScreen,acceptRequest,acceptedRequest,UserDetail,sent,friendList};

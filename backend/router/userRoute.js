@@ -1,5 +1,5 @@
 const express=require("express");
-const { getUser,createUser,logInUser,logOutUser,refreshAccessToken, changePassword,getUserId,sendingRequest,friendScreen,acceptRequest,acceptedRequest, UserDetail} = require( "../controllers/userControllers" );
+const { getUser,createUser,logInUser,logOutUser,refreshAccessToken, changePassword,getUserId,sendingRequest,friendScreen,acceptRequest,acceptedRequest, UserDetail,sent,friendList} = require( "../controllers/userControllers" );
 const verifyJwt = require( "../middlewares/authentication" );
 
 const router=express.Router()
@@ -21,4 +21,9 @@ router.route("/friendRequest/accept").post(acceptRequest);
 router.route("/acceptedRequest/:userId").get(acceptedRequest)
 //end point for getting userdetail for chat room
 router.route("/getRecipient/:userId").get(UserDetail)
+//endoint point for sent frient request details
+router.route("/friendRequest/sent/:userId").post(sent)
+//endpoint for friend list
+router.route("/friends/:userId").get(friendList)
+
 module.exports=router;

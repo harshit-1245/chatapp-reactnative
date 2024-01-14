@@ -1,5 +1,5 @@
 import { Image, KeyboardAvoidingView, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import React, { useContext, useEffect, useLayoutEffect, useState } from 'react';
+import React, { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Entypo } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
 import { Ionicons } from '@expo/vector-icons';
@@ -23,7 +23,28 @@ const ChatWithUser = () => {
   const [selectedImage,setSelectedImage]=useState("")
   const [chatMessage,setChatMessage]=useState({})
   const [selectedMessages,setSelectedMessages]=useState([])
-  
+  const scrollViewRef=useRef(null)
+
+
+//logic for last message automatically visible
+ const scrollToBottom=()=>{
+  if(scrollViewRef.current){
+    scrollViewRef.current.scrollToEnd({animated:false})
+  }
+ }
+
+
+useEffect(()=>{
+   scrollToBottom()
+},[])
+
+const handleContentSizeChange=()=>{
+  scrollToBottom();
+}
+
+
+
+
 
   const handleShowEmoji=()=>{
     setShowEmoji(!showEmoji)
@@ -230,7 +251,8 @@ console.log(selectedMessages)
 
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: "#F0F0F0" }}>
-      <ScrollView>
+      {/* using ref for not scrolling mannually */}
+      <ScrollView ref={scrollViewRef} contentContainerStyle={{flexGrow:1}} onContentSizeChange={handleContentSizeChange}> 
         {/* All the messages come here */}
         {Object.keys(chatMessage).map((key, index) => {
   const item = chatMessage[key];

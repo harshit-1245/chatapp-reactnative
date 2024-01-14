@@ -42,7 +42,7 @@ const userSchema=new mongoose.Schema({
         {
             //The sendFriendRequest field is an array that contains references to other documents in the "user" collection. It uses mongoose.Schema.Types.ObjectId to represent these references as unique identifiers (ObjectId) pointing to documents in the "user" collection. 
             type:mongoose.Schema.Types.ObjectId,
-            ref:"user"
+            ref:"User"
         }
     ],
 })

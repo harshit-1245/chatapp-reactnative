@@ -354,18 +354,26 @@ const UserDetail = asyncHandler(async (req, res) => {
   }
 });
 
-const sent=asyncHandler(async(req,res)=>{
+const sent = asyncHandler(async (req, res) => {
   try {
-    const {userId}=req.params;
-    
-    const user = await User.findById(userId).populate("sendFriendRequest","username email image").lean()
-    const sendFriendRequests = user.sendFriendRequest
-    res.status(200).json(sendFriendRequests)
+    const { userId } = req.params;
+
+    // Use const for the MongoDB query result
+    const user = await User.findById(userId).populate("sendFriendRequest", "username email image").lean();
+
+    // Rename variable for clarity
+    const sentFriendRequests = user.sendFriendRequest;
+
+    // Send the response
+    res.status(200).json(sentFriendRequests);
   } catch (error) {
-    console.log(error)
-    res.status(500).json({message:"someting wrong while getting sent"})
+    // Log the error for debugging
+    console.log(error);
+    // Send an error response
+    res.status(500).json({ message: "Something went wrong while getting sent friend requests" });
   }
-})
+});
+
 
 const friendList=asyncHandler(async(req,res)=>{
   try {

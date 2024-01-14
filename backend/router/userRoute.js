@@ -22,7 +22,7 @@ router.route("/acceptedRequest/:userId").get(acceptedRequest)
 //end point for getting userdetail for chat room
 router.route("/getRecipient/:userId").get(UserDetail)
 //endoint point for sent frient request details
-router.route("/friendRequest/sent/:userId").post(sent)
+router.route("/friendRequest/sent/:userId").get(sent)
 //endpoint for friend list
 router.route("/friends/:userId").get(friendList)
 

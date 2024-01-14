@@ -35,21 +35,19 @@ const User = ({ item }) => {
 useEffect(() => {
   const fetchFriendRequests = async () => {
     try {
-     
-      const response = await fetch(
-        `http://192.168.29.163:7000/user/friendRequest/sent/${userId}`
-      );
-
-      console.log("Response status:", response.status);
-
-      const data = await response.json();
+      const response = await axios.get(`http://192.168.29.163:7000/user/friendRequest/sent/${userId}`);
       
-      if (response.ok) {
-        console.log("Friend requests received:", data);
-        setFriendRequests(data);
+      
+
+      if (response.status === 200) {
+        const friendRequestsArray = response.data;
+    
+
+        // Update state with the received data
+        setFriendRequests(friendRequestsArray);
       } else {
-        console.log("Error in response:", data);
         console.log("Error status:", response.status);
+        console.log("Error data:", response.data);
       }
     } catch (error) {
       console.error("Error during fetchFriendRequests:", error);
@@ -58,6 +56,9 @@ useEffect(() => {
 
   fetchFriendRequests();
 }, [userId]);
+
+
+
 
 
   
@@ -81,23 +82,68 @@ useEffect(() => {
 
 
   return (
-    <Pressable style={styles.container}>
-      <View style={styles.userInfo}>
-        <Image
-          style={styles.profileImage}
-          source={{ uri: item.image }}
-        />
-        <View style={styles.textContainer}>
-          <Text style={styles.username}>{item?.username}</Text>
-          <Text style={styles.email}>{item?.email}</Text>
-        </View>
-      </View>
-      <Pressable onPress={()=>sendingRequest(userId,item._id)} style={styles.addButton}>
-        <Text style={styles.addButtonText}>Add Friend</Text>
+    <>
+    <Pressable
+    style={{ flexDirection: "row", alignItems: "center", marginVertical: 10 }}
+  >
+    <View>
+      <Image
+        style={{
+          width: 50,
+          height: 50,
+          borderRadius: 25,
+          resizeMode: "cover",
+        }}
+        source={{ uri: item.image }}
+      />
+    </View>
+
+    <View style={{ marginLeft: 12, flex: 1 }}>
+      <Text style={{ fontWeight: "bold" }}>{item?.name}</Text>
+      <Text style={{ marginTop: 4, color: "gray" }}>{item?.email}</Text>
+    </View>     
+    {userFriends.includes(item._id) ? (
+      <Pressable
+        style={{
+          backgroundColor: "#82CD47",
+          padding: 10,
+          width: 105,
+          borderRadius: 6,
+        }}
+      >
+        <Text style={{ textAlign: "center", color: "white" }}>Friends</Text>
       </Pressable>
-        
-      <Text onPress={()=>navigation.navigate("Home")}>Logout</Text>
-    </Pressable>
+    ) : request || friendRequests.some((friend) => friend._id === item._id) ? (
+      <Pressable
+        style={{
+          backgroundColor: "gray",
+          padding: 10,
+          width: 105,
+          borderRadius: 6,
+        }}
+      >
+        <Text style={{ textAlign: "center", color: "white", fontSize: 13 }}>
+          Request Sent
+        </Text>
+      </Pressable>
+    ) : (
+      <Pressable
+        onPress={() => sendingRequest(userId, item._id)}
+        style={{
+          backgroundColor: "#567189",
+          padding: 10,
+          borderRadius: 6,
+          width: 105,
+        }}
+      >
+        <Text style={{ textAlign: "center", color: "white", fontSize: 13 }}>
+          Add Friend
+        </Text>
+      </Pressable>
+    )}
+  </Pressable>
+   
+  </>
   );
 };
 

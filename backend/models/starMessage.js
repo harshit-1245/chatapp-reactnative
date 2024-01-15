@@ -11,14 +11,14 @@ const starSchema=new mongoose.Schema({
         ref: "User",
         required: true,
       }, 
-    messageType: {
-        type: String,
-        enum: ["text", "image"],
-        required: true,
-      },
+    // messageType: {
+    //     type: String,
+    //     enum: ["text", "image"],
+    //     required: true,
+    //   },
       messageText: {
-        type: String,
-        default: null, // or an appropriate default value
+        type: [String], // Define messageText as an array of strings
+        default: [],   // Set the default value to an empty array
       },
       imageUrl: {
         type: String,

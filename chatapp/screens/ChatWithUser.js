@@ -23,6 +23,7 @@ const ChatWithUser = () => {
   const [selectedImage,setSelectedImage]=useState("")
   const [chatMessage,setChatMessage]=useState({})
   const [selectedMessages,setSelectedMessages]=useState([])
+  
   const scrollViewRef=useRef(null)
 
 
@@ -64,25 +65,14 @@ const handleContentSizeChange=()=>{
   //logic for star messages
   const handleStarClickButton = async (messageId) => {
     try {
+      
 
-      const requestData = {
-        message:messageId,
-       userId,
-        recepientId: recepientId,
-        messageType: messageType,
-      };
-  
-      if (messageType === "text") {
-        requestData.messageText = message;
-      } else if (messageType === "image") {
-        requestData[messageType] = selectedImage;
-      }
       const resposne = await fetch("http://192.168.29.163:7000/message/starred",{
         method:"POST",
         headers:{
           "Content-Type":"application/json",
         },
-        body: JSON.stringify(requestData),//sending into body
+        body: JSON.stringify({message: messageId,userId,recepientId}),//sending into body
       })
   
       if(resposne.ok){
@@ -132,7 +122,7 @@ const handleContentSizeChange=()=>{
           <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
             <Ionicons name="arrow-redo" size={24} color="black" />
             <Ionicons name="arrow-undo" size={24} color="black" />
-            <FontAwesome onPress={()=>handleStarClickButton(selectedMessages,"text")} name="star" size={24} color="black" />
+            <FontAwesome onPress={()=>handleStarClickButton(selectedMessages,"")} name="star" size={24} color="black" />
             <MaterialIcons onPress={()=>handleDelete(selectedMessages)} name="delete" size={24} color="black" />
           </View>
         ) : null,
@@ -157,7 +147,6 @@ const handleContentSizeChange=()=>{
     }
   }
  
-  
  
   //get chat of two user   
   const getChat=async()=>{

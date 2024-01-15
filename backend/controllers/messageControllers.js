@@ -7,7 +7,7 @@ const Star = require( "../models/starMessage" )
 const getMessages=asyncHandler(async(req,res)=>{
     try {
         const message=await Message.find()
-        res.status(200).json(new ApiResponse(200,{},"Successfully get the data"))
+        res.status(200).json(message)
     } catch (error) {
         res.status(500).json({message:"Error while getting"})
     }
@@ -79,23 +79,32 @@ const deleteMessage=asyncHandler(async(req,res)=>{
 
 const starredMessage=asyncHandler(async(req,res)=>{
   try {
-    const {message,userId,recepientId, messageType, messageText }=req.body;
+    const {message,userId,recepientId}=req.body;
      // Assuming your request body structure has a field named `messageText`
-   console.log(message)
+     const starredMessages = await Promise.all(
+      message.map(async (messageId) => {
+        // Fetch message details from the database using messageId
+        const messageDetails = await Message.findById(messageId);
+        return messageDetails?.messageText || null;
+      })
+    );
+    
+    console.log(starredMessages);
+    
 
-  // Now you can use `messageText` to find the corresponding Message in the database
+    
+
  
-//   const messageinDb = await Message.findById({ message });
-// console.log(messageinDb)
-  // const newStar = new Star({
-  //   messageId:message,
-  //   senderId : userId,
-  //   recepientId,
-  //   messageType,
-  //     messageText,
-  // })
+ 
 
-  // await newStar.save()
+  const newStar = new Star({
+    messageId:message,
+    senderId : userId,
+    recepientId,
+    messageText:starredMessages,
+  })
+
+  await newStar.save()
   res.status(200).json({messages:"Stared message stored successfully"})
   } catch (error) {
     console.log(error)

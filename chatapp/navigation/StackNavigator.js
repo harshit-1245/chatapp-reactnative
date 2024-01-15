@@ -9,7 +9,8 @@ import ForgotPassword from '../screens/ForgotPassword'
 import FriendsScreen from '../screens/FriendsScreen'
 import ChatScreen from '../screens/ChatScreen'
 import ChatWithUser from '../screens/ChatWithUser'
-import StaredScreen from '../components/StaredScreen'
+import StaredScreen from '../screens/StaredScreen'
+
 
 const StackNavigator = () => {
     const Stack = createNativeStackNavigator()

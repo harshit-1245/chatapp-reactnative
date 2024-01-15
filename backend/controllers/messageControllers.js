@@ -1,6 +1,7 @@
 const asyncHandler=require("express-async-handler")
 const Message = require("../models/message")
 const { ApiResponse } = require( "../utils/ApiResponse" )
+const Star = require( "../models/starMessage" )
 
 
 const getMessages=asyncHandler(async(req,res)=>{
@@ -75,5 +76,31 @@ const deleteMessage=asyncHandler(async(req,res)=>{
     res.status(500).json({message:"Something went wrong while deleting"})
   }
 })
-module.exports={getMessages,sendMessage,getChat,deleteMessage}
+
+const starredMessage=asyncHandler(async(req,res)=>{
+  try {
+    const {message,userId,recepientId, messageType, messageText }=req.body;
+     // Assuming your request body structure has a field named `messageText`
+   console.log(message)
+
+  // Now you can use `messageText` to find the corresponding Message in the database
+ 
+//   const messageinDb = await Message.findById({ message });
+// console.log(messageinDb)
+  // const newStar = new Star({
+  //   messageId:message,
+  //   senderId : userId,
+  //   recepientId,
+  //   messageType,
+  //     messageText,
+  // })
+
+  // await newStar.save()
+  res.status(200).json({messages:"Stared message stored successfully"})
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({message:"Somthing went wrong while starred"})
+  }
+})
+module.exports={getMessages,sendMessage,getChat,deleteMessage,starredMessage}
 

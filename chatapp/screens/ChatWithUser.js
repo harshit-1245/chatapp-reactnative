@@ -1,4 +1,4 @@
-import { Image, KeyboardAvoidingView, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Image, KeyboardAvoidingView, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import React, { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Entypo } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
@@ -42,10 +42,6 @@ const handleContentSizeChange=()=>{
   scrollToBottom();
 }
 
-
-
-
-
   const handleShowEmoji=()=>{
     setShowEmoji(!showEmoji)
   }
@@ -65,6 +61,39 @@ const handleContentSizeChange=()=>{
      getRecepientId()
   },[])
  
+  //logic for star messages
+  const handleStarClickButton = async (messageId) => {
+    try {
+
+      const requestData = {
+        message:messageId,
+       userId,
+        recepientId: recepientId,
+        messageType: messageType,
+      };
+  
+      if (messageType === "text") {
+        requestData.messageText = message;
+      } else if (messageType === "image") {
+        requestData[messageType] = selectedImage;
+      }
+      const resposne = await fetch("http://192.168.29.163:7000/message/starred",{
+        method:"POST",
+        headers:{
+          "Content-Type":"application/json",
+        },
+        body: JSON.stringify(requestData),//sending into body
+      })
+  
+      if(resposne.ok){
+        Alert.alert("Starred successfully but underdevelopment")
+      }
+    } catch (error) {
+      console.error('Error handling star click button:', error);
+    }
+  };
+  
+  
  
   //designing header part
   useLayoutEffect(() => {
@@ -103,7 +132,7 @@ const handleContentSizeChange=()=>{
           <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
             <Ionicons name="arrow-redo" size={24} color="black" />
             <Ionicons name="arrow-undo" size={24} color="black" />
-            <FontAwesome name="star" size={24} color="black" />
+            <FontAwesome onPress={()=>handleStarClickButton(selectedMessages,"text")} name="star" size={24} color="black" />
             <MaterialIcons onPress={()=>handleDelete(selectedMessages)} name="delete" size={24} color="black" />
           </View>
         ) : null,
@@ -127,6 +156,7 @@ const handleContentSizeChange=()=>{
       console.error(error)
     }
   }
+ 
   
  
   //get chat of two user   
@@ -244,7 +274,7 @@ const handleSelectedMessage=(message)=>{
   }
 }
 
-console.log(selectedMessages)
+
 
 
 

@@ -2,6 +2,7 @@ const asyncHandler=require("express-async-handler")
 const Message = require("../models/message")
 const { ApiResponse } = require( "../utils/ApiResponse" )
 const Star = require( "../models/starMessage" )
+const User = require( "../models/User" )
 
 
 const getMessages=asyncHandler(async(req,res)=>{
@@ -9,7 +10,8 @@ const getMessages=asyncHandler(async(req,res)=>{
         const message=await Message.find()
         res.status(200).json(message)
     } catch (error) {
-        res.status(500).json({message:"Error while getting"})
+      
+        res.status(500).json({message:"Error while getting",error})
     }
 })
 
@@ -57,6 +59,7 @@ const getChat=asyncHandler(async(req,res)=>{
 
     
   } catch (error) {
+    console.log(error)
     res.status(500).json({message:"Error while getting chat"})
 
   }
@@ -89,15 +92,7 @@ const starredMessage=asyncHandler(async(req,res)=>{
       })
     );
     
-    console.log(starredMessages);
-    
-
-    
-
- 
- 
-
-  const newStar = new Star({
+    const newStar = new Star({
     messageId:message,
     senderId : userId,
     recepientId,
@@ -111,5 +106,8 @@ const starredMessage=asyncHandler(async(req,res)=>{
     res.status(500).json({message:"Somthing went wrong while starred"})
   }
 })
+
+
+
 module.exports={getMessages,sendMessage,getChat,deleteMessage,starredMessage}
 

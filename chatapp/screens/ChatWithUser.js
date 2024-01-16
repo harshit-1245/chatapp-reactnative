@@ -76,7 +76,9 @@ const handleContentSizeChange=()=>{
       })
   
       if(resposne.ok){
-        Alert.alert("Starred successfully but underdevelopment")
+        navigation.navigate("Star",{
+          recepientData:recepientData,
+        })
       }
     } catch (error) {
       console.error('Error handling star click button:', error);

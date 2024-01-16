@@ -8,6 +8,7 @@ const localStrategy = require("passport-local").Strategy;
 const userRoute = require("./router/userRoute");
 const cookieParser=require("cookie-parser")
 const messageRouter = require("./router/messageRoute")
+const starRouter =require("./router/starRouting")
 
 require("dotenv").config();
 const port = process.env.PORT || 7000; // Setting a default port
@@ -23,6 +24,7 @@ app.use(passport.initialize());
 
 app.use("/user", userRoute);
 app.use("/message",messageRouter)
+app.use("/star",starRouter)
 
 // Error handling middleware
 app.use((err, req, res, next) => {

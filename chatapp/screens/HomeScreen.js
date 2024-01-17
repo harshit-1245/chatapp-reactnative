@@ -8,6 +8,7 @@ import axios from "axios"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import base64 from "base-64"
 import User from '../components/User';
+import { Entypo } from '@expo/vector-icons';
 
 
 
@@ -15,6 +16,7 @@ const HomeScreen = () => {
  const navigation=useNavigation()
  const {userId,setUserId}=useContext(UserType)
  const [users,SetUsers]=useState([])
+ const [dropdown,setDropDown]=useState(false)
 
  const decodeJWTToken = async () => {
   try {
@@ -69,6 +71,7 @@ const HomeScreen = () => {
      <View style={{flexDirection:"row",alignItems:"center",gap:8}}>
 <AntDesign onPress={()=>navigation.navigate("Chat")} name="message1" size={24} color="black" />
 <Ionicons onPress={()=>navigation.navigate("Friends")} name="people-outline" size={24} color="black" />
+<Entypo name="dots-three-vertical" size={24} color="black" />
      </View>
     )
   })

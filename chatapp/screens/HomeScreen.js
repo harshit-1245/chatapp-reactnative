@@ -14,7 +14,7 @@ import User from '../components/User';
 const HomeScreen = () => {
  const navigation=useNavigation()
  const {userId,setUserId}=useContext(UserType)
- const [users,SetUsers]=useState({})
+ const [users,SetUsers]=useState([])
 
  const decodeJWTToken = async () => {
   try {
@@ -44,13 +44,14 @@ const HomeScreen = () => {
 
  useEffect(()=>{
   const fetchUser=async()=>{
-   axios.get(`http://192.168.29.163:7000/user/${userId}`)
-   .then((res)=>{
+   try {
+    const response=await fetch(`http://192.168.29.163:7000/user/${userId}`)
+    const data=await response.json()
     
-    SetUsers(res.data)
-   }).catch((err)=>{
-    console.error(err)
-   })
+    SetUsers(data)
+   } catch (error) {
+    console.log(error)
+   }
   }
   fetchUser()
   decodeJWTToken();
@@ -73,15 +74,21 @@ const HomeScreen = () => {
   })
  },[])
 
-
+ const usersArray = Object.values(users);
 
   return (
     <>
  <View>
   <View style={{padding:10}}>
-    {Object.keys(users).map((key,index) => (
+    {/* {Object.keys(users).map((key,index) => (
       <User key={index} item={users[key]} />
-    ))}
+    ))} */}
+
+{usersArray.map((item, index) => (
+<User key={index} item={item}/>
+))}
+ 
+
   </View>
 </View>
 

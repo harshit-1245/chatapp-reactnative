@@ -61,7 +61,7 @@ const handleContentSizeChange=()=>{
      }
      getRecepientId()
   },[])
- 
+
   //logic for star messages
   const handleStarClickButton = async (messageId) => {
     try {
@@ -124,7 +124,7 @@ const handleContentSizeChange=()=>{
           <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
             <Ionicons name="arrow-redo" size={24} color="black" />
             <Ionicons name="arrow-undo" size={24} color="black" />
-            <FontAwesome onPress={()=>handleStarClickButton(selectedMessages,"")} name="star" size={24} color="black" />
+            <FontAwesome onPress={()=>handleStarClickButton(selectedMessages)} name="star" size={24} color="black" />
             <MaterialIcons onPress={()=>handleDelete(selectedMessages)} name="delete" size={24} color="black" />
           </View>
         ) : null,

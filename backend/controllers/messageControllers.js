@@ -83,6 +83,7 @@ const deleteMessage=asyncHandler(async(req,res)=>{
 const starredMessage=asyncHandler(async(req,res)=>{
   try {
     const {message,userId,recepientId}=req.body;
+    
      // Assuming your request body structure has a field named `messageText`
      const starredMessages = await Promise.all(
       message.map(async (messageId) => {
@@ -102,7 +103,7 @@ const starredMessage=asyncHandler(async(req,res)=>{
   await newStar.save()
   res.status(200).json({messages:"Stared message stored successfully"})
   } catch (error) {
-    console.log(error)
+  
     res.status(500).json({message:"Somthing went wrong while starred"})
   }
 })

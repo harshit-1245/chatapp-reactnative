@@ -10,7 +10,7 @@ const FriendRequests = ({ item, friendRequest, setFriendRequest }) => {
   const acceptRequest = async (friendRequestId) => {
     try {
       console.log('Accept button clicked!');
-      const response = await fetch('http://192.168.29.163:7000/user/friendRequest/accept', {
+      const response = await fetch('http://192.168.74.201:7000/user/friendRequest/accept', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

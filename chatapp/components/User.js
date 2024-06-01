@@ -35,7 +35,7 @@ const User = ({ item }) => {
 useEffect(() => {
   const fetchFriendRequests = async () => {
     try {
-      const response = await axios.get(`http://192.168.29.163:7000/user/friendRequest/sent/${userId}`);
+      const response = await axios.get(`http://192.168.74.201:7000/user/friendRequest/sent/${userId}`);
       
       
 
@@ -66,7 +66,7 @@ useEffect(() => {
  useEffect(() => {
   const fetchFriendList = async () => {
     try {
-      const response = await axios.get(`http://192.168.29.163:7000/user/friends/${userId}`);
+      const response = await axios.get(`http://192.168.74.201:7000/user/friends/${userId}`);
       setUserFriends(response.data)
       
     } catch (error) {

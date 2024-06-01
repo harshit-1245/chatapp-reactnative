@@ -29,7 +29,7 @@ const handleRegister = () => {
     image: image
   };
 
-  axios.post("http://192.168.29.163:7000/user/register", user)
+  axios.post("http://192.168.74.201:7000/user/register", user)
     .then((response) => {
       Alert.alert("Registration Successfully");
 

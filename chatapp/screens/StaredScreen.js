@@ -17,7 +17,7 @@ const StaredScreen = () => {
   useEffect(() => {
     const getStar = async () => {
       try {
-        const response = await fetch(`http://192.168.29.163:7000/star/${userId}`, {
+        const response = await fetch(`http://192.168.74.201:7000/star/${userId}`, {
           method: 'GET',
         });
         const data = await response.json();

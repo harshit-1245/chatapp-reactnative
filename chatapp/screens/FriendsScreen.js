@@ -14,7 +14,7 @@ const FriendsScreen = () => {
   useEffect(()=>{
        const getFriendsRequest=async()=>{
        try {
-         const response = await axios.get(`http://192.168.29.163:7000/user/friendRequest/${userId}`)
+         const response = await axios.get(`http://192.168.74.201:7000/user/friendRequest/${userId}`)
          if(response.status ===200){
           const friendRequestData = await response.data.map((friendRequest)=>({
            _id:friendRequest._id,

@@ -21,7 +21,7 @@ const navigation = useNavigation()
     try {
       const authToken = await AsyncStorage.getItem("authToken");
       if (authToken) {
-        const response = await axios.post("http://192.168.29.163:7000/user/changepassword", user, {
+        const response = await axios.post("http://192.168.74.201:7000/user/changepassword", user, {
           headers: {
             Authorization: `Bearer ${authToken}`,
           },

@@ -67,7 +67,7 @@ const handleContentSizeChange=()=>{
     try {
       
 
-      const resposne = await fetch("http://192.168.29.163:7000/message/starred",{
+      const resposne = await fetch("http://192.168.74.201:7000/message/starred",{
         method:"POST",
         headers:{
           "Content-Type":"application/json",
@@ -133,7 +133,7 @@ const handleContentSizeChange=()=>{
   //deleteting chat when we selcet
   const handleDelete=async(messageId)=>{
     try {
-      const response = await fetch("http://192.168.29.163:7000/message/deletemessage",{
+      const response = await fetch("http://192.168.74.201:7000/message/deletemessage",{
         method:"POST",
         headers:{
           "Content-Type":"application/json",
@@ -153,7 +153,7 @@ const handleContentSizeChange=()=>{
   //get chat of two user   
   const getChat=async()=>{
     try {
-      const response=await axios.get(`http://192.168.29.163:7000/message/${userId}/${recepientId}`)
+      const response=await axios.get(`http://192.168.74.201:7000/message/${userId}/${recepientId}`)
      
       setChatMessage(response.data);
     } catch (error) {
@@ -191,7 +191,7 @@ const handleSend = async () => {
     }
 
     const response = await axios.post(
-      "http://192.168.29.163:7000/message/send",
+      "http://192.168.74.201:7000/message/send",
       requestData
     );
 

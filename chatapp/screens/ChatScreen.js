@@ -11,7 +11,7 @@ const ChatScreen = () => {
   useEffect(()=>{
      const getAcceptedFriends=async()=>{
        try {
-        const response = await fetch(`http://192.168.29.163:7000/user/acceptedRequest/${userId}`,{
+        const response = await fetch(`http://192.168.74.201:7000/user/acceptedRequest/${userId}`,{
           method:"GET"
         })
          const data=await response.json();

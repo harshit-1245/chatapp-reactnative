@@ -31,7 +31,7 @@ const navigation=useNavigation();
         password: password
       }
            
-    axios.post("http://192.168.29.163:7000/user/login",user)
+    axios.post("http://192.168.74.201:7000/user/login",user)
     .then((response) => {
       Alert.alert("Login Successful");
      

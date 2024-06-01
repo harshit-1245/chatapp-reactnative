@@ -47,7 +47,7 @@ const HomeScreen = () => {
  useEffect(()=>{
   const fetchUser=async()=>{
    try {
-    const response=await fetch(`http://192.168.29.163:7000/user/${userId}`)
+    const response=await fetch(`http://192.168.74.201:7000/user/${userId}`)
     const data=await response.json()
     
     SetUsers(data)

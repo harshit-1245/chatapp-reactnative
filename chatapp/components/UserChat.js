@@ -11,7 +11,7 @@ const UserChat = ({ item }) => {
 
   const getChat = async () => {
     try {
-      const response = await axios.get(`http://192.168.29.163:7000/message/${userId}/${item._id}`);
+      const response = await axios.get(`http://192.168.74.201:7000/message/${userId}/${item._id}`);
       setChatMessage(response.data);
 
       // Set the last message here
